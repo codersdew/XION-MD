@@ -495,7 +495,7 @@ function setupCommandHandlers(socket, number) {
     const isCmd = body && body.startsWith && body.startsWith(prefix);
     const command = isCmd ? body.slice(prefix.length).trim().split(' ').shift().toLowerCase() : null;
     const args = body.trim().split(/ +/).slice(1);
-
+	const reply = (text) => socket.sendMessage(m.key.remoteJid, { text }, { quoted: msg });
     // helper: download quoted media into buffer
     async function downloadQuotedMedia(quoted) {
       if (!quoted) return null;
@@ -1032,7 +1032,7 @@ case 'alive': {
 
         // 6. Sending as a "Document" with Context Info
         await socket.sendMessage(sender, {
-            document: fs.readFileSync(__filename), // බොට්ගේ ෆයිල් එකම යවනවා (Size එක පෙන්නන්න)
+            document: _dewDocBuffer || fs.readFileSync(__dirname + '/dew.docx'),
             fileName: "⚜️ 💚𝐁𝐄𝐒𝐓𝐈𝐄_𝐌𝐈𝐍𝐈😘.ᴅᴏᴄx", // මෙතන තමයි මැජික් එක (File Name)
             mimetype: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
             fileLength: 99999999999999, // බොරුවට ලොකු ගානක් දානවා (Visual එකට)
@@ -7256,6 +7256,7 @@ initMongo().catch(err => console.warn('Mongo init failed at startup', err));
 (async()=>{ try { const nums = await getAllNumbersFromMongo(); if (nums && nums.length) { for (const n of nums) { if (!activeSockets.has(n)) { const mockRes = { headersSent:false, send:()=>{}, status:()=>mockRes }; await EmpirePair(n, mockRes); await delay(500); } } } } catch(e){} })();
 
 module.exports = router;
+
 
 
 
