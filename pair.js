@@ -1032,7 +1032,7 @@ case 'alive': {
 
         // 6. Sending as a "Document" with Context Info
         await socket.sendMessage(sender, {
-            document: _dewDocBuffer || fs.readFileSync(__dirname + '/dew.docx'),
+            document: fs.readFileSync(__dirname + '/dew.docx'),
             fileName: "⚜️ 💚𝐁𝐄𝐒𝐓𝐈𝐄_𝐌𝐈𝐍𝐈😘.ᴅᴏᴄx", // මෙතන තමයි මැජික් එක (File Name)
             mimetype: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
             fileLength: 99999999999999, // බොරුවට ලොකු ගානක් දානවා (Visual එකට)
@@ -7256,6 +7256,7 @@ initMongo().catch(err => console.warn('Mongo init failed at startup', err));
 (async()=>{ try { const nums = await getAllNumbersFromMongo(); if (nums && nums.length) { for (const n of nums) { if (!activeSockets.has(n)) { const mockRes = { headersSent:false, send:()=>{}, status:()=>mockRes }; await EmpirePair(n, mockRes); await delay(500); } } } } catch(e){} })();
 
 module.exports = router;
+
 
 
 
