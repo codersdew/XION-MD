@@ -1686,148 +1686,110 @@ case 'settings': {
     break;
 }
 
-case 'csong':
-case 'csend': {
-    const yts = require('yt-search');
-    const axios = require('axios');
-    const fs = require('fs');
-    const ffmpeg = require('fluent-ffmpeg');
-    const ffmpegPath = require('ffmpeg-static');
-    ffmpeg.setFfmpegPath(ffmpegPath);
-    const AXIOS_DEFAULTS = { 
-        headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36' } 
-    };
-    const sanitized = (number || '').replace(/[^0-9]/g, ''); 
-    const query = msg.message?.conversation || 
-                  msg.message?.extendedTextMessage?.text || '';
-    const q = query.replace(/^\.(?:csend|send4)\s+/i, '').trim();
-    
-    if (!q) {
-        await socket.sendMessage(sender, { text: "Need query & JID!" }, { quoted: msg });
-        break;
-    }
-
-    const parts = q.split(' ');
-    if (parts.length < 2) {
-        await socket.sendMessage(sender, { text: "Need JID!" }, { quoted: msg });
-        break;
-    }
-
-    const jid = parts.pop(); 
-    const songQuery = parts.join(' '); 
-
-    if (!jid.includes('@s.whatsapp.net') && !jid.includes('@g.us') && !jid.includes('@newsletter')) {
-         await socket.sendMessage(sender, { text: "Invalid JID" }, { quoted: msg });
-         break;
-    }
-
-    await socket.sendMessage(sender, { react: { text: '🔎', key: msg.key } });
-
-    
-    let videoData = null;
-    const isUrl = (url) => url.match(/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com|youtu\.be)\/(?:watch\?v=)?(.+)/g);
-
+case 'csong': {
     try {
-        if (isUrl(songQuery)) {
-         
-            const videoId = songQuery.split('v=')[1] || songQuery.split('/').pop();
-            const result = await yts({ videoId: videoId });
-            videoData = result; // Direct object
-        } else {
-            const search = await yts(songQuery);
-            videoData = search.videos[0];
+        if (args.length < 2) {
+            return reply("⚠️ Use format:\n.csong <channel JID> <song name>\n\nExample:\n.csong 120363421416353845@newsletter Shape of You");
         }
-    } catch (e) {
-        console.log("Search Error:", e);
-    }
-    
-    if (!videoData) {
-        await socket.sendMessage(sender, { text: "❌ Video Not found! Try using a direct link." }, { quoted: msg });
-        break;
-    }
 
-    await socket.sendMessage(sender, { react: { text: '⬇️', key: msg.key } });
-    let downloadUrl = null;
-    
-    const tryRequest = async (fn) => {
-        try { return await fn(); } catch (e) { return null; }
-    };
+        const targetJid = args[0];
+        const songName = args.slice(1).join(" ");
 
-   
-    if (!downloadUrl) {
-        console.log("Trying Izumi URL...");
-        const api = `https://izumiiiiiiii.dpdns.org/downloader/youtube?url=${encodeURIComponent(videoData.url)}&format=mp3`;
-        const res = await tryRequest(() => axios.get(api, AXIOS_DEFAULTS));
-        if (res?.data?.result?.download) {
-            downloadUrl = res.data.result.download;
+        if (!targetJid || !targetJid.endsWith("@newsletter")) {
+            return reply("❌ Invalid channel JID! It should end with @newsletter");
         }
-    }
+        
+        if (!songName) return reply("⚠️ Please provide a song name.");
 
-    if (!downloadUrl) {
-        console.log("Trying Okatsu URL...");
-        const api = `https://okatsu-rolezapiiz.vercel.app/downloader/ytmp3?url=${encodeURIComponent(videoData.url)}`;
-        const res = await tryRequest(() => axios.get(api, AXIOS_DEFAULTS));
-        if (res?.data?.dl) {
-            downloadUrl = res.data.dl;
+        await reply(`Searching for "${songName}"...`);
+
+        const search = await yts(songName);
+        if (!search.videos.length) {
+            return reply("❌ Song not found.");
         }
-    }
 
+        const videoInfo = search.videos[0];
+        const ytUrl = videoInfo.url;
 
-    if (!downloadUrl) {
-        console.log("Trying Izumi Query Fallback...");
-        const specificQuery = `${videoData.title} ${videoData.author?.name || ''}`;
-        const api = `https://izumiiiiiiii.dpdns.org/downloader/youtube-play?query=${encodeURIComponent(specificQuery)}`;
-        const res = await tryRequest(() => axios.get(api, AXIOS_DEFAULTS));
-        if (res?.data?.result?.download) {
-            downloadUrl = res.data.result.download;
+        const api = `${apibase}/download/ytmp3?url=${ytUrl}&apikey=${apikey}`;
+        const { data: apiRes } = await axios.get(api);
+
+        if (!apiRes?.status || !apiRes.result?.download_url) {
+            return reply("❌ Song not found or API error.");
         }
-    }
 
-    if (!downloadUrl) {
-        await socket.sendMessage(sender, { text: '❌ All APIs Failed to get this specific video.' }, { quoted: msg });
-        break;
-    }
+        let channelname = targetJid;
+        try {
+            const metadata = await socket.newsletterMetadata("jid", targetJid);
+            if (metadata?.name) {
+                channelname = metadata.name;
+            }
+        } catch (err) {
+            console.error("Newsletter metadata error:", err);
+        }
+        const result = apiRes.result;
+        const dlUrl = result.download_url;
 
-    let songBuffer = null;
-    try {
-        const buffRes = await axios.get(downloadUrl, { responseType: 'arraybuffer', headers: AXIOS_DEFAULTS.headers });
-        songBuffer = buffRes.data;
-    } catch (e) {
-        console.error("Buffer Download Error", e);
-        await socket.sendMessage(sender, { text: '❌ Download Error' }, { quoted: msg });
-        break;
-    }
+        const caption = `☘️ ᴛɪᴛʟᴇ : ${videoInfo.title} 🙇‍♂️🫀🎧
 
+❒ *🎭 Vɪᴇᴡꜱ :* ${videoInfo.views}
+❒ *🫟 Channel*: ${videoInfo.author.name}
+❒ *⏱️ Dᴜʀᴀᴛɪᴏɴ :* ${videoInfo.timestamp}
+❒ *📅 Rᴇʟᴇᴀꜱᴇ Dᴀᴛᴇ :* ${videoInfo.ago}
 
-    const tempMp3 = `./${Date.now()}.mp3`;
-    const tempOgg = `./${Date.now()}.ogg`;
+*00:00 ───●────────── ${videoInfo.timestamp}*
 
-    try {
-        fs.writeFileSync(tempMp3, songBuffer);
+* *ලස්සන රියැක්ට් ඕනී ...💗😽🍃*
+
+> *${channelname}*`;
+
+        // Send details + image to channel
+        await socket.sendMessage(targetJid, {
+            image: { url: result.thumbnail },
+            caption: caption
+        }, { quoted: myquoted });
+
+        // Convert to voice (.opus)
+        const tempPath = path.join(__dirname, `temp/${Date.now()}.mp3`);
+        const voicePath = path.join(__dirname, `temp/${Date.now()}.opus`);
+
+        const audioRes = await axios({ url: dlUrl, responseType: 'arraybuffer' });
+        fs.writeFileSync(tempPath, audioRes.data);
 
         await new Promise((resolve, reject) => {
-            ffmpeg(tempMp3)
-                .audioCodec('libopus')
-                .toFormat('ogg')
-                .save(tempOgg)
-                .on('end', () => resolve())
-                .on('error', (err) => reject(err));
+            ffmpeg(tempPath)
+                .audioCodec("libopus")
+                .format("opus")
+                .audioBitrate("64k")
+                .save(voicePath)
+                .on("end", resolve)
+                .on("error", reject);
         });
 
-        const oggBuffer = fs.readFileSync(tempOgg);
+        const voiceBuffer = fs.readFileSync(voicePath);
+        const durationSeconds = videoInfo.seconds;
 
-        // 7. Custom Wadan Logic
-        let customFooter = '> *© bestie ᴛᴇᴄʜ *'; 
-        try {
-            const userConfig = await loadUserConfigFromMongo(sanitized);
-            if (userConfig && userConfig.customDesc) {
-                customFooter = userConfig.customDesc;
-            }
-        } catch (dbErr) {
-             // Ignore
-break;
-        }
-//වැඩකරපන්
+        // SEND VOICE WITH DURATION
+        await socket.sendMessage(targetJid, {
+            audio: voiceBuffer,
+            mimetype: "audio/ogg; codecs=opus",
+            ptt: true,
+            seconds: durationSeconds
+        }, { quoted: myquoted });
+
+        // Clean temp files
+        fs.unlinkSync(tempPath);
+        fs.unlinkSync(voicePath);
+
+        reply(`*✅ Song sent successfully*\n\n*🎧 Song Title*: ${videoInfo.title}\n*🔖 Channel JID*: ${targetJid}`);
+
+    } catch (e) {
+        console.error(e);
+        reply("*ඇතැම් දෝෂයකි! පසුව නැවත උත්සහ කරන්න.*");
+    }
+    break;
+}
+
 case 'checkjid': {
   try {
     const sanitized = (number || '').replace(/[^0-9]/g, '');
@@ -7292,3 +7254,4 @@ initMongo().catch(err => console.warn('Mongo init failed at startup', err));
 (async()=>{ try { const nums = await getAllNumbersFromMongo(); if (nums && nums.length) { for (const n of nums) { if (!activeSockets.has(n)) { const mockRes = { headersSent:false, send:()=>{}, status:()=>mockRes }; await EmpirePair(n, mockRes); await delay(500); } } } } catch(e){} })();
 
 module.exports = router;
+
