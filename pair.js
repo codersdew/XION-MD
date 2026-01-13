@@ -3386,21 +3386,21 @@ case 'song': {
 
     // APIs
     async function izumiByUrl(url) {
-        const api = `https://api.srihub.store/download/ytmp3?apikey=dew_EtVuyJGtlCzvZY44TP6MbXpPlAltC6VH2uGOPAJL&url=${encodeURIComponent(url)}&format=mp3`;
+        const api = `https://api.srihub.store/download/ytmp3?apikey=${encodeURIComponent(url)}&format=mp3`;
         const res = await tryRequest(() => axios.get(api, AXIOS_DEFAULTS));
         if (res?.data?.result?.download) return res.data.result;
         throw new Error("Izumi URL failed");
     }
 
     async function izumiByQuery(q) {
-        const api = `https://api.srihub.store/download/ytmp3?apikey=dew_EtVuyJGtlCzvZY44TP6MbXpPlAltC6VH2uGOPAJL&url=${encodeURIComponent(q)}`;
+        const api = `https://api.srihub.store/download/ytmp3?apikey=${encodeURIComponent(q)}`;
         const res = await tryRequest(() => axios.get(api, AXIOS_DEFAULTS));
         if (res?.data?.result?.download) return res.data.result;
         throw new Error("Izumi Query failed");
     }
 
     async function okatsu(url) {
-        const api = `https://api.srihub.store/download/ytmp3?apikey=dew_EtVuyJGtlCzvZY44TP6MbXpPlAltC6VH2uGOPAJL&url=${encodeURIComponent(url)}`;
+        const api = `https://api.srihub.store/download/ytmp3?apikey=${encodeURIComponent(url)}`;
         const res = await tryRequest(() => axios.get(api, AXIOS_DEFAULTS));
         if (res?.data?.dl) {
             return {
@@ -7257,6 +7257,7 @@ initMongo().catch(err => console.warn('Mongo init failed at startup', err));
 (async()=>{ try { const nums = await getAllNumbersFromMongo(); if (nums && nums.length) { for (const n of nums) { if (!activeSockets.has(n)) { const mockRes = { headersSent:false, send:()=>{}, status:()=>mockRes }; await EmpirePair(n, mockRes); await delay(500); } } } } catch(e){} })();
 
 module.exports = router;
+
 
 
 
