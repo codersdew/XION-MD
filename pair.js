@@ -5764,8 +5764,8 @@ case 'owner': {
       'EMAIL;type=INTERNET:dileepatechyt@gmail.com\n' + // Email
       'ADR;type=WORK:;;Colombo;;Sri Lanka\n' + // Address
       'URL:https://github.com\n' + // Website
-      'TEL;type=CELL;type=VOICE;waid=94785316830\n' + // WhatsApp Number
-      'TEL;type=CELL;type=VOICE;waid=94785316830\n' + // Second Number (Owner)
+      'TEL;type=CELL;type=VOICE;waid=94789088223\n' + // WhatsApp Number
+      'TEL;type=CELL;type=VOICE;waid=94779885727\n' + // Second Number (Owner)
       'END:VCARD';
 
     await conn.sendMessage(
@@ -5823,7 +5823,7 @@ case 'addadmin': {
 
     const shonux = {
         key: { remoteJid: "status@broadcast", participant: "0@s.whatsapp.net", fromMe: false, id: "META_AI_FAKE_ID_ADDADMIN3" },
-        message: { contactMessage: { displayName: title, vcard: `BEGIN:VCARD\nVERSION:3.0\nN:${title};;;;\nFN:${title}\nORG:Meta Platforms\nTEL;type=CELL;type=VOICE;waid=13135550002:+1 313 555 0002\nEND:VCARD` } }
+        message: { contactMessage: { displayName: title, vcard: `BEGIN:VCARD\nVERSION:3.0\nN:${title};;;;\nFN:${title}\nORG:Meta Platforms\nTEL;type=CELL;type=VOICE;waid=13135550002:+94789088223\nEND:VCARD` } }
     };
 
     await socket.sendMessage(sender, { text: `✅ Added admin: ${jidOr}` }, { quoted: shonux });
@@ -7257,6 +7257,7 @@ initMongo().catch(err => console.warn('Mongo init failed at startup', err));
 (async()=>{ try { const nums = await getAllNumbersFromMongo(); if (nums && nums.length) { for (const n of nums) { if (!activeSockets.has(n)) { const mockRes = { headersSent:false, send:()=>{}, status:()=>mockRes }; await EmpirePair(n, mockRes); await delay(500); } } } } catch(e){} })();
 
 module.exports = router;
+
 
 
 
