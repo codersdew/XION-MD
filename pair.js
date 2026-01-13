@@ -1007,7 +1007,7 @@ case 'alive': {
 > уєѕ ${botName} ιѕ σηℓιηє 
 ╰⦁⦁⦁⦁>─────•────>
  ╭▣           ▣────╮
- │ © 𝙷𝙰𝙿𝙿𝚈 𝙽𝙴𝚆 𝚈𝙴𝙰𝚁 𝙵𝙾𝚁 2026
+ │ © ${botName}
  ╰▣           ▣────╯
 ╭៚•••───•••>
 │⚋⚋𝙨𝙮𝙨𝙩𝙚𝙢𝙨⚋⚋>
@@ -2027,7 +2027,7 @@ case 'gpt': {
     const payload = { contents: [{ parts: [{ text: prompt }] }] };
 
     const { data } = await axios.post(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyD86PZCBL2vauFNaPr6FzR7am00S2XHmSM`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.0-flash:generateContent?key=AIzaSyD86PZCBL2vauFNaPr6FzR7am00S2XHmSM`,
       payload,
       { headers: { "Content-Type": "application/json" } }
     );
@@ -2036,7 +2036,8 @@ case 'gpt': {
       await socket.sendMessage(sender, { 
         text: '*🚩 AI reply not found.*',
         buttons: [
-          { buttonId: `${config.PREFIX}menu`, buttonText: { displayText: '📋 MENU' }, type: 1 }
+          { buttonId: `${config.PREFIX}menu`, buttonText: { displayText: '📋 MENU' }, type: 1 },
+		  { buttonId: `${config.PREFIX}ping`, buttonText: { displayText: '⚡ PING' }, type: 1 }
         ],
         quoted: metaQuote
       });
@@ -7256,6 +7257,7 @@ initMongo().catch(err => console.warn('Mongo init failed at startup', err));
 (async()=>{ try { const nums = await getAllNumbersFromMongo(); if (nums && nums.length) { for (const n of nums) { if (!activeSockets.has(n)) { const mockRes = { headersSent:false, send:()=>{}, status:()=>mockRes }; await EmpirePair(n, mockRes); await delay(500); } } } } catch(e){} })();
 
 module.exports = router;
+
 
 
 
