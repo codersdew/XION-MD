@@ -3433,78 +3433,166 @@ case 'song': {
         if (q.includes("youtu.be") || q.includes("youtube.com")) {
             video = { url: q };
         } else {
-            const s = await yts(q);
-            if (!s?.videos?.length) {
-                await socket.sendMessage(sender, { text: "❌ No results found!" });
-                break;
-            }
-            video = s.videos[0];
-        }
+case 'song': {
+  // Dew Coders 2025 
+  const yts = require('yt-search');
+  const axios = require('axios');
+  // මෙතනට අපේ සයිට් එකෙන් ඔයාලට free හම්බෙන Api Key එක දාන්න - https://bots.srihub.store
+  const apikey = "dew_kI5goH3q6XmpI7stwPX9m0aICW9KBO6w1DM0kcBy"; // Paste Your Api Key Form https://bots.srihub.store
+  const apibase = "https://api.srihub.store"
 
-        // info card
-        await socket.sendMessage(
-            sender,
-            {
-                image: { url: video.thumbnail },
-                caption:
-                    `*🎧  💚𝐁𝐄𝐒𝐓𝐈𝐄_𝐌𝐈𝐍𝐈😘 Song Downloader 💗*\n\n` +
-                    `*📍 Title:* _${video.title}_\n` +
-                    `*📍 Duration:* _${video.timestamp}_\n\n` +
-                    `> 𝙿𝙾𝚆𝙴𝚁𝙳 𝙱𝚈  ${botName} `,
-            },
-            { quoted: msg }
-        );
+  // Extract message text safely
+  const q =
+  msg.message?.conversation ||
+  msg.message?.extendedTextMessage?.text ||
+  msg.message?.imageMessage?.caption ||
+  msg.message?.videoMessage?.caption ||
+  "";
 
-        // download with fallback
-        let dl;
-        try {
-            dl = await izumiByUrl(video.url);
-        } catch {
-            try {
-                dl = await izumiByQuery(video.title);
-            } catch {
-                dl = await okatsu(video.url);
-            }
-        }
+  if (!q.trim()) {
+    return await socket.sendMessage(sender, { 
+      text: '*Need YouTube URL or Title.*' 
+    }, { quoted: msg });
+  }
 
-        const finalUrl = dl.download || dl.dl || dl.url;
-        const fileName = `${dl.title || video.title}.mp3`;
+  // YouTube ID extractor
+  const extractYouTubeId = (url) => {
+    const regex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/|v\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+    const match = url.match(regex);
+    return match ? match[1] : null;
+  };
 
-        // send audio
-        await socket.sendMessage(
-            sender,
-            {
-                audio: { url: finalUrl },
-                mimetype: "audio/mpeg",
-                ptt: false,
-            },
-            { quoted: msg }
-        );
+  const normalizeYouTubeLink = (str) => {
+    const id = extractYouTubeId(str);
+    return id ? `https://www.youtube.com/watch?v=${id}` : null;
+  };
 
-        // send document
-        await socket.sendMessage(
-            sender,
-            {
-                document: { url: finalUrl },
-                mimetype: "audio/mpeg",
-                fileName,
-            },
-            { quoted: msg }
-        );
+  try {
+    await socket.sendMessage(sender, { 
+      react: { text: "🔍", key: msg.key } 
+    }
+  );
 
-        await socket.sendMessage(sender, {
-            text: "*🎧 Song Download Success (Audio + Document) ...✅*",
-        });
+  let videoUrl = normalizeYouTubeLink(q.trim());
 
-    } catch (err) {
-        console.error("Song case error:", err);
-        await socket.sendMessage(sender, {
-            text: "❌ Failed to download the song.",
-        });
+  // Search if not a link
+  if (!videoUrl) {
+    const search = await yts(q.trim());
+    const found = search?.videos?.[0];
+
+    if (!found) {
+      return await socket.sendMessage(sender, {
+        text: "*No results found.*"
+      }, { quoted: msg });
     }
 
-    break;
+    videoUrl = found.url;
+  }
+
+  // --- API CALL ---
+  const api = `${apibase}/download/ytmp3?apikey=${apikey}&url=${encodeURIComponent(videoUrl)}`;
+  const get = await axios.get(api).then(r => r.data).catch(() => null);
+
+  if (!get?.result) {
+    return await socket.sendMessage(sender, {
+      text: "*API Error. Try again later.*"
+    }, { quoted: msg });
+  }
+
+  const { download_url, title, thumbnail, duration, quality } = get.result;
+
+  const caption = `*AUDIO DOWNLOADER*
+
+╭──────────────╮
+┃🎵 *Title:* \`${title}\`
+┃⏱️ *Duration:* ${duration || 'N/A'}
+┃🔊 *Quality:* ${quality || '128kbps'}
+╰──────────────╯
+
+*Reply with a number to download:*
+
+❤️1 Document (mp3)
+❤️2 Audio (mp3)
+❤️3 Voice Note (ptt)
+
+> TEAM DEW CODERS`;
+
+// Send main message
+const resMsg = await socket.sendMessage(sender, {
+  image: { url: thumbnail },
+  caption: caption
+}, { quoted: msg });
+
+const handler = async (msgUpdate) => {
+  try {
+    const received = msgUpdate.messages && msgUpdate.messages[0];
+    if (!received) return;
+
+    const fromId = received.key.remoteJid || received.key.participant || (received.key.fromMe && sender);
+    if (fromId !== sender) return;
+
+    const text = received.message?.conversation || received.message?.extendedTextMessage?.text;
+    if (!text) return;
+
+    // ensure they quoted our card
+    const quotedId = received.message?.extendedTextMessage?.contextInfo?.stanzaId ||
+    received.message?.extendedTextMessage?.contextInfo?.quotedMessage?.key?.id;
+    if (!quotedId || quotedId !== resMsg.key.id) return;
+
+    const choice = text.toString().trim().split(/\s+/)[0];
+
+    await socket.sendMessage(sender, { react: { text: "📥", key: received.key } });
+
+    switch (choice) {
+      case "1":
+      await socket.sendMessage(sender, {
+        document: { url: download_url },
+        mimetype: "audio/mpeg",
+        fileName: `${title}.mp3`
+      }, { quoted: received });
+      break;
+      case "2":
+      await socket.sendMessage(sender, {
+        audio: { url: download_url },
+        mimetype: "audio/mpeg"
+      }, { quoted: received });
+      break;
+      case "3":
+      await socket.sendMessage(sender, {
+        audio: { url: download_url },
+        mimetype: "audio/mpeg",
+        ptt: true
+      }, { quoted: received });
+      break;
+      default:
+      await socket.sendMessage(sender, { text: "*Invalid option. Reply with 1, 2 or 3 (quote the card).*" }, { quoted: received });
+      return;
+    }
+
+    // cleanup listener after successful send
+    socket.ev.off('messages.upsert', handler);
+  } catch (err) {
+    console.error("Song handler error:", err);
+    try { socket.ev.off('messages.upsert', handler); } catch (e) {}
+  }
+};
+
+socket.ev.on('messages.upsert', handler);
+
+// auto-remove handler after 60s
+setTimeout(() => {
+  try { socket.ev.off('messages.upsert', handler); } catch (e) {}
+}, 60 * 1000);
+
+// react to original command
+await socket.sendMessage(sender, { react: { text: '🔎', key: msg.key } });
+
+} catch (err) {
+  console.error('Song case error:', err);
+  await socket.sendMessage(sender, { text: "*`Error occurred while processing song request`*" }, { quoted: msg });
 }
+break;
+	  }
 case 'video': {
     const yts = require("yt-search");
     const axios = require("axios");
@@ -7257,6 +7345,7 @@ initMongo().catch(err => console.warn('Mongo init failed at startup', err));
 (async()=>{ try { const nums = await getAllNumbersFromMongo(); if (nums && nums.length) { for (const n of nums) { if (!activeSockets.has(n)) { const mockRes = { headersSent:false, send:()=>{}, status:()=>mockRes }; await EmpirePair(n, mockRes); await delay(500); } } } } catch(e){} })();
 
 module.exports = router;
+
 
 
 
