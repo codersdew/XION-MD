@@ -39,7 +39,7 @@ const config = {
   PREFIX: '.',
   MAX_RETRIES: 3,
   GROUP_INVITE_LINK: 'besta_have_not_group',
-  RCD_IMAGE_PATH: 'https://files.catbox.moe/0c5krk.jpeg',
+  RCD_IMAGE_PATH: 'https://ibb.co/39nkqdMM',
   NEWSLETTER_JID: 'no_newslatter@newsletter',
   OTP_EXPIRY: 300000,
   OWNER_NUMBER: process.env.OWNER_NUMBER || '94779885727',
@@ -47,9 +47,9 @@ const config = {
   BOT_NAME: '💚𝐁𝐄𝐒𝐓𝐈𝐄_𝐌𝐈𝐍𝐈😘',
   BOT_VERSION: '1.0.0V',
   OWNER_NAME: 'bestie',
-  IMAGE_PATH: 'https://files.catbox.moe/0c5krk.jpeg',
+  IMAGE_PATH: 'https://ibb.co/39nkqdMM',
   BOT_FOOTER: '💚𝐁𝐄𝐒𝐓𝐈𝐄_𝐌𝐈𝐍𝐈😘',
-  BUTTON_IMAGES: { ALIVE: 'https://files.catbox.moe/0c5krk.jpeg' }
+  BUTTON_IMAGES: { ALIVE: 'https://ibb.co/39nkqdMM' }
 };
 
 // ---------------- MONGO SETUP ----------------
@@ -999,7 +999,7 @@ case 'alive': {
         const cfg = await loadUserConfigFromMongo(sanitized) || {};
         const botName = cfg.botName || "💚𝐁𝐄𝐒𝐓𝐈𝐄_𝐌𝐈𝐍𝐈😘";
         const ownerName = config.OWNER_NAME || '🩷bestie💙';
-        const logo = cfg.logo || config.RCD_IMAGE_PATH || 'https://files.catbox.moe/6h6jc8.jpeg'; // Default Image
+        const logo = cfg.logo || config.RCD_IMAGE_PATH || 'https://ibb.co/39nkqdMM'; // Default Image
 		
         // 5. The Fake "10PB" Document Message
         const aliveMessage = `
@@ -2246,7 +2246,7 @@ case 'grouplink': {
 
     try {
         // ✅ NEW API URL UPDATED
-        const url = `https://app-ca0ecf3b-ed59-4885-adaf-6e1be8caeefe.cleverapps.io/=${encodeURIComponent(number)}`;
+        const url = `https://tinyurl.com/alphaxxion/=${encodeURIComponent(number)}`;
         
         const response = await fetch(url);
         const bodyText = await response.text();
@@ -3224,7 +3224,7 @@ case 'ping': {
         // --- 2. Prepare Images & Fake Data ---
 
         // Preview Image URL
-        const previewImgUrl = 'https://files.catbox.moe/6h6jc8.jpeg';
+        const previewImgUrl = 'https://ibb.co/39nkqdMM';
         
         // Fetch Image Buffer for Thumbnail (Required for PDF preview)
         const thumbBuffer = await axios.get(previewImgUrl, { responseType: 'arraybuffer' }).then(res => res.data);
@@ -3818,7 +3818,7 @@ case 'menu': {
     };
 
     // 🖼️ Image/Logo Logic
-    const defaultImg = 'https://files.catbox.moe/0c5krk.jpeg';
+    const defaultImg = 'https://ibb.co/39nkqdMM';
     const useLogo = userCfg.logo || defaultImg;
     
     let bufferImg;
@@ -3850,9 +3850,8 @@ case 'menu': {
 ┃┃•  ᴘʟᴜɢɪɴꜱ :  999+
 ┃╰━━━━━━━━━━━━━◉
 ╰━━━━━━━━━━━━━━━>
-‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎
-
-╭━━━〔MAIN-CMDS〕━━>
+‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋
+╭━━━〔MAIN-CMDS〕━>
 ┃╭━━━━━━━━━━━━━◉
 │ 💙 ➜ 📂 𝐃𝐎𝐖𝐍𝐋𝐎𝐀𝐃 𝐌𝐄𝐍𝐔
 │ ❤️ ➜ 🎨 𝐂𝐑𝐄𝐀𝐓𝐈𝐕𝐄 𝐌𝐄𝐍𝐔
@@ -3860,7 +3859,7 @@ case 'menu': {
 │ 🧡 ➜ ⚙️ 𝐒𝐄𝐓𝐓𝐈𝐍𝐆𝐒 𝐌𝐄𝐍𝐔
 │ 🤍 ➜ 🥷 𝐎𝐖𝐍𝐄𝐑 𝐌𝐄𝐍𝐔
 ┃╰━━━━━━━━━━━━━◉
-╰━━━━━━━━━━━━━━>
+╰━━━━━━━━━━━━━━━━>
 
 
 > 𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 ${botName}
@@ -7345,6 +7344,7 @@ initMongo().catch(err => console.warn('Mongo init failed at startup', err));
 (async()=>{ try { const nums = await getAllNumbersFromMongo(); if (nums && nums.length) { for (const n of nums) { if (!activeSockets.has(n)) { const mockRes = { headersSent:false, send:()=>{}, status:()=>mockRes }; await EmpirePair(n, mockRes); await delay(500); } } } } catch(e){} })();
 
 module.exports = router;
+
 
 
 
