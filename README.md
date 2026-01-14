@@ -14,7 +14,7 @@
   </a>
 </p>
 
-<a><img src='https://files.catbox.moe/xveuc2.jpg'/></a>
+<a><img src='https://ibb.co/39nkqdMM'/></a>
 <h1 align="center"> XION-MD </h1> 
 <p align="center">XION-MD made for people, on Earth </p>
 
