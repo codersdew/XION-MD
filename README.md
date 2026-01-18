@@ -17,6 +17,6 @@
 <a><img src='https://i.ibb.co/Y46jgcpL/2289.jpg'/></a>
 <h1 align="center"> XION-MD </h1> 
 <p align="center">XION-MD made for people, on Earth </p>
-<a><img src='<a><img src='https://ibb.co/39nkqdMM'/></a>'/>
+<a><img src='<a><img src='https://ibb.co/39nkqdMM'/></a>
 <h1>https://tinyurl.com/alphaxxion</h1> 
    
