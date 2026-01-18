@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>Kezu Terminal | V5.0</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --accent: #00ffcc;
+      --glow: rgba(0, 255, 204, 0.4);
+      --bg: #030712;
+      --card-bg: rgba(15, 23, 42, 0.8);
+    }
+
+    /* PRELOADER */
+    #loader {
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      transition: opacity 0.5s ease;
+    }
+
+    .loader-ring {
+      width: 80px; height: 80px;
+      border: 2px solid transparent;
+      border-top: 2px solid var(--accent);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    body {
+      margin: 0;
+      background-color: var(--bg);
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(0, 255, 204, 0.05) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(112, 0, 255, 0.05) 0px, transparent 50%);
+      color: #e2e8f0;
+      font-family: 'Rajdhani', sans-serif;
+      overflow-x: hidden;
+    }
+
+    header {
+      padding: 80px 20px 40px;
+      text-align: center;
+    }
+
+    .glitch-text {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 2.5rem;
+      letter-spacing: 8px;
+      color: var(--accent);
+      text-shadow: 0 0 10px var(--glow);
+      margin: 0;
+    }
+
+    /* TERMINAL CARD */
+    .terminal-container {
+      max-width: 450px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .terminal-window {
+      background: var(--card-bg);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+      backdrop-filter: blur(20px);
+    }
+
+    .terminal-header {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 10px 15px;
+      display: flex;
+      gap: 8px;
+    }
+
+    .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .dot-r { background: #ff5f56; }
+    .dot-y { background: #ffbd2e; }
+    .dot-g { background: #27c93f; }
+
+    .terminal-body {
+      padding: 30px;
+    }
+
+    .input-wrapper {
+      position: relative;
+      margin-top: 20px;
+    }
+
+    input {
+      width: 100%;
+      background: rgba(0,0,0,0.3);
+      border: 1px solid rgba(0, 255, 204, 0.3);
+      padding: 15px;
+      box-sizing: border-box;
+      border-radius: 8px;
+      color: white;
+      font-family: 'Courier New', monospace;
+      font-size: 1.1rem;
+      transition: all 0.3s ease;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 15px var(--glow);
+    }
+
+    .action-btn {
+      width: 100%;
+      margin-top: 20px;
+      background: var(--accent);
+      color: #000;
+      border: none;
+      padding: 15px;
+      font-weight: bold;
+      font-family: 'Orbitron', sans-serif;
+      border-radius: 8px;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: 0.3s;
+    }
+
+    .action-btn:hover {
+      background: #fff;
+      box-shadow: 0 0 20px #fff;
+      transform: translateY(-2px);
+    }
+
+    /* FEATURE GRID */
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      max-width: 1000px;
+      margin: 60px auto;
+      padding: 0 20px;
+    }
+
+    .f-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 25px;
+      border-radius: 15px;
+      text-align: center;
+      transition: 0.3s;
+    }
+
+    .f-card:hover {
+      border-color: var(--accent);
+      background: rgba(0, 255, 204, 0.03);
+    }
+
+    .f-card i {
+      font-size: 2rem;
+      color: var(--accent);
+      margin-bottom: 15px;
+    }
+
+    #pairing-result {
+      margin-top: 25px;
+      min-height: 50px;
+    }
+
+    .copy-badge {
+      background: rgba(0, 255, 204, 0.1);
+      border: 1px dashed var(--accent);
+      padding: 15px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: monospace;
+      color: var(--accent);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+
+    footer {
+      text-align: center;
+      padding: 50px;
+      opacity: 0.5;
+      font-size: 0.8rem;
+      letter-spacing: 2px;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="loader">
+    <div class="loader-ring"></div>
+    <p style="margin-top:20px; font-family: 'Orbitron'; color: var(--accent);">STREAMS LOADING...</p>
+  </div>
+
+  <header>
+    <h1 class="glitch-text">BESTIE MINI V1</h1>
+    <p style="opacity: 0.7; margin-top: 10px;">PAIR YOUR BEST WHATSAPP BOT BESTIE</p>
+  </header>
+
+  <div class="terminal-container">
+    <div class="terminal-window">
+      <div class="terminal-header">
+        <div class="dot dot-r"></div>
+        <div class="dot dot-y"></div>
+        <div class="dot dot-g"></div>
+      </div>
+      <div class="terminal-body">
+        <div style="font-family: monospace; color: #666; font-size: 0.8rem; margin-bottom: 10px;">
+          > INITIALIZING PAIR_PROTOCOL... <br>
+          > SYSTEM: READY
+        </div>
+        
+        <div class="input-wrapper">
+          <input type="number" id="phone" placeholder="947xxxxxxxx">
+        </div>
+        
+        <button class="action-btn" id="generate-btn">Establish Link</button>
+
+        <div id="pairing-result"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="features">
+    <div class="f-card">
+      <i class="fas fa-shield-halved"></i>
+      <h3>Encrypted</h3>
+      <p>Secure end-to-end socket transmission.</p>
+    </div>
+    <div class="f-card">
+      <i class="fas fa-bolt"></i>
+      <h3>Ultralight</h3>
+      <p>Optimized for low-latency code delivery.</p>
+    </div>
+    <div class="f-card">
+      <i class="fas fa-code-branch"></i>
+      <h3>V5 Core</h3>
+      <p>Powered by the latest MD-Library update.</p>
+    </div>
+  </div>
+
+  <footer>
+    OPERATIONAL UNIT 4 // 2024-2025 // BY KING KEZU
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.0.0-alpha.1/axios.min.js"></script>
+  <script>
+    window.addEventListener("load", () => {
+      setTimeout(() => {
+        document.getElementById("loader").style.opacity = "0";
+        setTimeout(() => document.getElementById("loader").style.display = "none", 500);
+      }, 1000);
+    });
+
+    const btn = document.getElementById("generate-btn");
+    const resultDiv = document.getElementById("pairing-result");
+
+    async function copyCode(code) {
+      await navigator.clipboard.writeText(code);
+      const box = document.querySelector(".copy-badge");
+      box.innerHTML = "<span>COPIED!</span><i class='fas fa-check'></i>";
+      setTimeout(() => location.reload(), 2000);
+    }
+
+    btn.addEventListener("click", async () => {
+      const num = document.getElementById("phone").value;
+      if(!num) return alert("Enter number!");
+
+      btn.innerText = "CONNECTING...";
+      btn.style.opacity = "0.5";
+      btn.disabled = true;
+
+      try {
+        const { data } = await axios(`/code?number=${num}`);
+        const code = data.code || "ERR_NULL";
+        
+        resultDiv.innerHTML = `
+          <div class="copy-badge" onclick="copyCode('${code}')">
+            <span>CODE: <strong>${code}</strong></span>
+            <i class="fas fa-copy"></i>
+          </div>
+          <p style="font-size:0.7rem; color:#666; text-align:center; margin-top:10px;">Click code to copy</p>
+        `;
+        btn.style.display = "none";
+      } catch (e) {
+        resultDiv.innerHTML = `<p style="color:#ff5f56; text-align:center;">Node Connection Failed</p>`;
+        btn.innerText = "RETRY LINK";
+        btn.style.opacity = "1";
+        btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
